@@ -1,7 +1,7 @@
 package com.reiser.mapr;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -12,7 +12,6 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -31,15 +30,15 @@ public class Flow {
 
         //指定输入输出路径
         FileInputFormat.addInputPath(job, new Path(args[0]));
-        Path path = new Path(args[1]);
+        Path outputPath = new Path(args[1]);
 
-        try {
-            FileUtil.fullyDelete(new File(args[1]));
-        } catch (Exception e) {
-            e.printStackTrace();
+        //还原输出路径
+        FileSystem fs = FileSystem.get(conf);
+        if (fs.exists(outputPath)) {
+            fs.delete(outputPath, true);
         }
-        FileOutputFormat.setOutputPath(job, path);
-
+        //指定输出路径
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         //指定 MapOutput kv 类型 - 必须
         job.setMapOutputKeyClass(Text.class);
