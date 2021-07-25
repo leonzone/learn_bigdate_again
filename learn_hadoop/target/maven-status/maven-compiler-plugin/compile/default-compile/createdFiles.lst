@@ -1,7 +1,0 @@
-com/reiser/mapr/FlowBean.class
-com/reiser/mapr/Flow.class
-com/reiser/mapr/WordCount.class
-com/reiser/mapr/WordCount$WCReducer.class
-com/reiser/mapr/Flow$FlowReducer.class
-com/reiser/mapr/Flow$FlowMapper.class
-com/reiser/mapr/WordCount$WCMapper.class

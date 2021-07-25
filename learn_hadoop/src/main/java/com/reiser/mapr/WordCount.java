@@ -1,6 +1,7 @@
 package com.reiser.mapr;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -29,12 +30,22 @@ public class WordCount {
 
         //指定输入输出路径
         FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+        Path outputPath = new Path(args[1]);
+
+        //还原输出路径
+        FileSystem fs = FileSystem.get(conf);
+        if (fs.exists(outputPath)) {
+            fs.delete(outputPath, true);
+        }
+        //指定输出路径
+        FileOutputFormat.setOutputPath(job, outputPath);
 
         //指定 MapOutput kv 类型 - 必须
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
         job.setJarByClass(WordCount.class);
+        job.setNumReduceTasks(Integer.parseInt(args[2]));
 
         //启动任务
         System.exit(job.waitForCompletion(true) ? 0 : 1);
