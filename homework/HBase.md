@@ -50,7 +50,7 @@ public class HBaseDemo {
     public static void main(String[] args) throws Exception {
 
         //基本信息
-        String tableName = "xuzeze_test:student";
+        String tableName = "reiser_test:student";
         String[] cfs = {"info", "score"};
 
         //创建表
@@ -212,38 +212,38 @@ public class HBaseDemo {
 ## HBase Shell
 ``` shell
 # 创建表
-create 'xuzeze_test:student','info','score'
+create 'reiser_test:student','info','score'
 
 # 插入数据
-put 'xuzeze_test:student','Tom','info:student_id' ,'20210000000001'
-put 'xuzeze_test:student','Jerry','info:student_id' ,'20210000000002'
-put 'xuzeze_test:student','Jack','info:student_id' ,'20210000000003'
-put 'xuzeze_test:student','Rose','info:student_id' ,'20210000000004'
-put 'xuzeze_test:student','xuzeze','info:student_id' ,'G20200343130176'
-put 'xuzeze_test:student','Tom','info:class' ,'1'
-put 'xuzeze_test:student','Jerry','info:class' ,'1'
-put 'xuzeze_test:student','Jack','info:class' ,'2'
-put 'xuzeze_test:student','Rose','info:class' ,'2'
-put 'xuzeze_test:student','Tom','score:understanding' ,'75'
-put 'xuzeze_test:student','Jerry','score:understanding' ,'85'
-put 'xuzeze_test:student','Jack','score:understanding' ,'80'
-put 'xuzeze_test:student','Rose','score:understanding' ,'60'
-put 'xuzeze_test:student','Tom','score:understanding' ,'82'
-put 'xuzeze_test:student','Jerry','score:understanding' ,'67'
-put 'xuzeze_test:student','Jack','score:understanding' ,'80'
-put 'xuzeze_test:student','Rose','score:understanding' ,'61'
+put 'reiser_test:student','Tom','info:student_id' ,'20210000000001'
+put 'reiser_test:student','Jerry','info:student_id' ,'20210000000002'
+put 'reiser_test:student','Jack','info:student_id' ,'20210000000003'
+put 'reiser_test:student','Rose','info:student_id' ,'20210000000004'
+put 'reiser_test:student','xuzeze','info:student_id' ,'G20200343130176'
+put 'reiser_test:student','Tom','info:class' ,'1'
+put 'reiser_test:student','Jerry','info:class' ,'1'
+put 'reiser_test:student','Jack','info:class' ,'2'
+put 'reiser_test:student','Rose','info:class' ,'2'
+put 'reiser_test:student','Tom','score:understanding' ,'75'
+put 'reiser_test:student','Jerry','score:understanding' ,'85'
+put 'reiser_test:student','Jack','score:understanding' ,'80'
+put 'reiser_test:student','Rose','score:understanding' ,'60'
+put 'reiser_test:student','Tom','score:understanding' ,'82'
+put 'reiser_test:student','Jerry','score:understanding' ,'67'
+put 'reiser_test:student','Jack','score:understanding' ,'80'
+put 'reiser_test:student','Rose','score:understanding' ,'61'
 
 # 获取数据
-get 'xuzeze_test:student','xuzeze'
+get 'reiser_test:student','xuzeze'
 # 扫描表
-scan 'xuzeze_test:student'
+scan 'reiser_test:student'
 # 统计总数
-count 'xuzeze_test:student'
+count 'reiser_test:student'
 # 删除数据
-delete 'xuzeze_test:student','xuzeze','info:student_id'
+delete 'reiser_test:student','xuzeze','info:student_id'
 # 删除表：先 disable 再 drop
-disable 'xuzeze_test:student'
-drop 'xuzeze_test:student'
+disable 'reiser_test:student'
+drop 'reiser_test:student'
 ```
 
 ### 运行结果
