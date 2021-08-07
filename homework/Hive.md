@@ -97,7 +97,12 @@ LIMIT 10;
 > 找出影评次数最多的女士所给出最高分的10部电影的平均影评分，展示电影名和平均影评分（可使用多行SQL）
 
 ### 我先思考
-- 如果能用连接查询就不要用自查询
+- 如果能用 `join` 就不要用子查询
+- 一步步拆解 SQL
+  - 筛选女士
+  - 影评次数最多
+  - 最高分的10部电影
+  - 平均影评分和电影名
 
 ### Show Me Code
 ```sql
@@ -111,8 +116,7 @@ WITH top10_movies AS (
                ORDER BY cnt DESC
                LIMIT 1
   ) a ON tr.userid = a.userid
-  ORDER BY rate DESC, times DESC
-  LIMIT 10)
+  ORDER BY rate DESC, times DESC LIMIT 10)
 SELECT tm.moviename AS moviename, c.avgrate
 FROM (SELECT tr.movieid, AVG(tr.rate) AS avgrate
       FROM t_rating tr

@@ -7,7 +7,7 @@
 | 1  | 实现上下行流量汇总  | [作业](homework/MR.md)  |
 | 2  | 实现 RPC 通信  | [作业](homework/RPC.md)  | 
 | 3  | HBase API  | [作业](homework/HBase.md)  | 
-
+| 4  | Hive Sql 练习 | [作业](homework/Hive.md)  | 
 
 ## 1.基础知识
 [RPC和动态代理](https://zvwj6a35sd.feishu.cn/docs/doccn4MiAZfTnmsMjq0d8TB3s7d)
