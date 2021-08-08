@@ -137,7 +137,216 @@ Hive DDL：
 
 ## 附加作业
 实现 GeekFile
+> 实现两个类：GeekTextInputFormat和GeekTextOutputFormat
+> 建表时使用create table ... stored as geek来创建GeekFormat表
 
-参考链接
+### GeekTextInputFormat
+```java
+public class GeekTextInputFormat implements InputFormat<LongWritable, BytesWritable>, JobConfigurable {
+
+    public static class GeekLineRecordReader implements
+            RecordReader<LongWritable, BytesWritable>, JobConfigurable {
+
+        LineRecordReader reader;
+        Text text;
+
+        public GeekLineRecordReader(LineRecordReader reader) {
+            this.reader = reader;
+            text = reader.createValue();
+        }
+
+        @Override
+        public void close() throws IOException {
+            reader.close();
+        }
+
+        @Override
+        public LongWritable createKey() {
+            return reader.createKey();
+        }
+
+        @Override
+        public BytesWritable createValue() {
+            return new BytesWritable();
+        }
+
+        @Override
+        public long getPos() throws IOException {
+            return reader.getPos();
+        }
+
+        @Override
+        public float getProgress() throws IOException {
+            return reader.getProgress();
+        }
+
+        @Override
+        public boolean next(LongWritable key, BytesWritable value) throws IOException {
+            while (reader.next(key, text)) {
+                String newStr = decode();
+                // text -> byte[] -> value
+                byte[] textBytes = newStr.getBytes();
+                int length = text.getLength();
+
+                // Trim additional bytes
+                if (length != textBytes.length) {
+                    textBytes = Arrays.copyOf(textBytes, length);
+                }
+
+                value.set(textBytes, 0, textBytes.length);
+                return true;
+            }
+            // no more data
+            return false;
+        }
+
+        private String decode() {
+            return text.toString().replaceAll("gee+k", "");
+        }
+
+
+        @Override
+        public void configure(JobConf job) {
+        }
+
+    }
+
+    TextInputFormat format;
+    JobConf job;
+
+    public GeekTextInputFormat() {
+        format = new TextInputFormat();
+    }
+
+    @Override
+    public void configure(JobConf job) {
+        this.job = job;
+        format.configure(job);
+    }
+
+    public RecordReader<LongWritable, BytesWritable> getRecordReader(
+            InputSplit genericSplit, JobConf job, Reporter reporter) throws IOException {
+        reporter.setStatus(genericSplit.toString());
+        GeekLineRecordReader reader = new GeekLineRecordReader(
+                new LineRecordReader(job, (FileSplit) genericSplit));
+        reader.configure(job);
+        return reader;
+    }
+
+    @Override
+    public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
+        return format.getSplits(job, numSplits);
+    }
+}
+```
+### GeekTextOutputFormat
+```java
+public class GeekTextOutputFormat<K extends WritableComparable, V extends Writable>
+        extends HiveIgnoreKeyTextOutputFormat<K, V> {
+    
+    public static class GeekRecordWriter implements RecordWriter,
+            JobConfigurable {
+
+        RecordWriter writer;
+        BytesWritable bytesWritable;
+
+        public GeekRecordWriter(RecordWriter writer) {
+            this.writer = writer;
+            bytesWritable = new BytesWritable();
+        }
+
+        @Override
+        public void write(Writable w) throws IOException {
+
+            // Get input data
+            byte[] input;
+            if (w instanceof Text) {
+                input = encode(w.toString());
+
+            } else {
+                assert (w instanceof BytesWritable);
+                input = ((BytesWritable) w).getBytes();
+            }
+
+            // Encode
+            byte[] output = input;
+            bytesWritable.set(output, 0, output.length);
+            writer.write(bytesWritable);
+        }
+
+        private byte[] encode(String content) {
+            String[] words = content.split(" ");
+            StringBuilder sb = new StringBuilder();
+            int bound = 254;
+            int r = new Random().nextInt(bound) + 2;
+            int j = 0;
+            for (int i = 0; i < words.length; i++, j++) {
+                sb.append(words[i]).append(" ");
+                if (j == r) {
+                    sb.append("g");
+                    for (int i1 = 0; i1 < j; i1++) {
+                        sb.append("e");
+                    }
+                    sb.append("k").append(" ");
+                    j = 0;
+                    r = new Random().nextInt(bound) + 2;
+                }
+            }
+            return sb.toString().getBytes();
+        }
+
+        @Override
+        public void close(boolean abort) throws IOException {
+            writer.close(abort);
+        }
+
+
+        @Override
+        public void configure(JobConf job) {
+
+        }
+    }
+
+    @Override
+    public RecordWriter getHiveRecordWriter(JobConf jc, Path finalOutPath,
+                                            Class<? extends Writable> valueClass, boolean isCompressed,
+                                            Properties tableProperties, Progressable progress) throws IOException {
+
+        GeekRecordWriter writer = new GeekRecordWriter(super
+                .getHiveRecordWriter(jc, finalOutPath, BytesWritable.class,
+                        isCompressed, tableProperties, progress));
+        writer.configure(jc);
+        return writer;
+    }
+
+}
+```
+
+### 运行
+```shell
+# 使用 maven 打包，并上传到服务器
+# 进入到 hive cli
+add jar /home/student/hadoop/learn_hive-1.0-SNAPSHOT.jar;
+# 建表
+create table tb_test_format(str STRING)
+stored as
+inputformat 'com.reiser.fileformat.GeekTextInputFormat'
+outputformat 'com.reiser.fileformat.GeekTextOutputFormat';
+# 插入数据
+INSERT INTO TABLE tb_test_format values('This notebook can be used to install gek on all worker nodes, run data generation, and create the TPCDS database.');
+```
+
+### 检查结果
+
+**in hdfs**
+
+![](../resource/hive05.png)
+
+**in hive**
+
+![](../resource/hive04.png)
+
+
+### 参考链接
 https://cwiki.apache.org/confluence/display/Hive/DeveloperGuide#DeveloperGuide-RegistrationofNativeSerDes
 https://github.com/apache/hive/blob/master/contrib/src/java/org/apache/hadoop/hive/contrib/fileformat/base64/Base64TextInputFormat.java
