@@ -347,6 +347,31 @@ INSERT INTO TABLE tb_test_format values('This notebook can be used to install ge
 ![](../resource/hive04.png)
 
 
+### 注册
+以上结果虽然正确，但是没有实现 `stored as geek`，这里需要对自定义格式进行注册
+1. 新建一个存储格式描述类并继承 `AbstractStorageFormatDescriptor` ，该类返回 `stored as` 关键字以及 InputFormat、OutputFormat 和 SerDe 类的名称。
+2. 将存储格式描述类的名称添加到 `org.apache.hadoop.hive.ql.io.StorageFormatDescriptor` 注册文件中。
+
+``` java
+public class GeekStorageFormatDescriptor  extends AbstractStorageFormatDescriptor {
+    @Override
+    public Set<String> getNames() {
+        return ImmutableSet.of("geek");
+    }
+
+    @Override
+    public String getInputFormat() {
+        return GeekTextInputFormat.class.getName();
+    }
+
+    @Override
+    public String getOutputFormat() {
+        return GeekTextOutputFormat.class.getName();
+    }
+}
+```
+
+
 ### 参考链接
 https://cwiki.apache.org/confluence/display/Hive/DeveloperGuide#DeveloperGuide-RegistrationofNativeSerDes
 https://github.com/apache/hive/blob/master/contrib/src/java/org/apache/hadoop/hive/contrib/fileformat/base64/Base64TextInputFormat.java
