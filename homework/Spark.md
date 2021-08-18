@@ -1,22 +1,36 @@
-package com.reiser.sparkcore;
+## 作业一 使用RDD API实现带词频的倒排索引
 
-import org.apache.hadoop.util.StringUtils;
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.api.java.function.FlatMapFunction;
-import org.apache.spark.api.java.function.Function2;
-import org.apache.spark.api.java.function.PairFunction;
-import scala.Tuple2;
+### 题目
+> 倒排索引（Inverted index），也被称为反向索引。它是文档检索系统中最常用的数据结构。被广泛 地应用于全文搜索引擎。
 
-import java.util.*;
+例子如下，被索引的文件为（0，1，2代表文件名）
+```shell
+0. "it is what it is"
+1. "what is it"
+2. "it is a banana"
+```
+我们就能得到下面的反向文件索引：
+``` json
+"a": {2} 
+"banana": {2} 
+"is": {0, 1, 2} 
+"it": {0, 1, 2} 
+"what": {0, 1} 
+```
+再加上词频为： 
+``` json
+"a": {(2,1)} 
+"banana": {(2,1)} 
+"is": {(0,2), (1,1), (2,1)} 
+"it": {(0,2), (1,1), (2,1)} 
+"what": {(0,1), (1,1)}
+```
 
-/**
- * @author: reiserx
- * Date:2021/8/17
- * Des: 使用 spark 实现倒排索引
- */
+### 让我想想
+- wholeTextFiles 可以实现遍历目录，并且获取文件名
+
+### 代码
+```java
 public class InvertedIndex {
 
     public static void main(String[] args) {
@@ -71,3 +85,17 @@ public class InvertedIndex {
         sc.close();
     }
 }
+```
+
+### 运行结果
+![运行结果](../resource/spark01.png)
+
+## 作业二 Distcp的spark实现
+
+### 题目
+
+### 让我想想
+
+### 代码
+
+### 运行结果
