@@ -1,117 +1,25 @@
-## 作业一 使用RDD API实现带词频的倒排索引
+package com.reiser.copy;
 
-### 题目
-> 倒排索引（Inverted index），也被称为反向索引。它是文档检索系统中最常用的数据结构。被广泛 地应用于全文搜索引擎。
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.*;
+import org.apache.spark.SerializableWritable;
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.broadcast.Broadcast;
+import scala.Tuple2;
 
-例子如下，被索引的文件为（0，1，2代表文件名）
-```shell
-0. "it is what it is"
-1. "what is it"
-2. "it is a banana"
-```
-我们就能得到下面的反向文件索引：
-``` json
-"a": {2} 
-"banana": {2} 
-"is": {0, 1, 2} 
-"it": {0, 1, 2} 
-"what": {0, 1} 
-```
-再加上词频为： 
-``` json
-"a": {(2,1)} 
-"banana": {(2,1)} 
-"is": {(0,2), (1,1), (2,1)} 
-"it": {(0,2), (1,1), (2,1)} 
-"what": {(0,1), (1,1)}
-```
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-### 让我想想
-- wholeTextFiles 可以实现遍历目录，并且获取文件名
-
-### 代码
-```java
-public class InvertedIndex {
-
-    public static void main(String[] args) {
-
-        SparkConf conf = new SparkConf();
-        conf.setMaster("local");
-        conf.setAppName(InvertedIndex.class.getSimpleName());
-
-        JavaSparkContext sc = new JavaSparkContext(conf);
-
-        //读取整个目录下的文件
-        JavaPairRDD<String, String> files = sc.wholeTextFiles(args[0]);
-
-        //拆分单词，并让单词携带文件名信息
-        JavaRDD<Tuple2<String, String>> word = files.flatMap(new FlatMapFunction<Tuple2<String, String>, Tuple2<String, String>>() {
-            @Override
-            public Iterator<Tuple2<String, String>> call(Tuple2<String, String> fileNameContent) throws Exception {
-                String[] filePath = fileNameContent._1.split("/");
-
-                String fileName = filePath[filePath.length - 1];
-                String line = fileNameContent._2;
-                ArrayList<Tuple2<String, String>> result = new ArrayList<>();
-                for (String word : line.split(" ")) {
-                    result.add(new Tuple2<>(word, fileName));
-                }
-                return result.iterator();
-            }
-        });
-
-        // 分组聚合
-        JavaPairRDD<String, String> rdd = word.mapToPair((PairFunction<Tuple2<String, String>, String, String>) t -> new Tuple2<>(t._1, t._2));
-        JavaPairRDD<String, String> rdd1 = rdd.reduceByKey((Function2<String, String, String>) (v1, v2) -> v1 + "|" + v2)
-                .sortByKey();
-
-        // 汇总统计
-        JavaRDD<Tuple2<String, Map<String, Integer>>> rdd2 = rdd1.map(t -> {
-            Map<String, Integer> map = new HashMap<>();
-            for (String s : t._2.split("\\|")) {
-                map.put(s, map.getOrDefault(s, 0) + 1);
-            }
-            return new Tuple2<>(t._1, map);
-        });
-
-        //打印
-        for (Tuple2<String, Map<String, Integer>> next : rdd2.collect()) {
-            List<String> list = new ArrayList<>();
-            for (Map.Entry<String, Integer> entry : next._2.entrySet()) {
-                list.add("(" + entry.getKey() + ", " + entry.getValue() + ")");
-            }
-            System.out.println("\"" + next._1 + "\": {" + StringUtils.join(",", list) + "}");
-        }
-        sc.close();
-    }
-}
-```
-
-### 运行结果
-![运行结果](../resource/spark01.png)
-
-## 作业二 Distcp的spark实现
-
-### 题目
-使用Spark实现Hadoop 分布式数据传输工具 DistCp (distributed copy)，只要求实现最基础的copy功能，对于-update、-diff、-p不做要求 
-
-对于HadoopDistCp的功能与实现，可以参考 
-- https://hadoop.apache.org/docs/current/hadoop-distcp/DistCp.html 
-- https://github.com/apache/hadoop/tree/release-2.7.1/hadoop-tools/hadoop-distcp
-
-> Hadoop使用MapReduce框架来实现分布式copy，在Spark中应使用RDD来实现分布式copy
-
-- 应实现的功能为： sparkDistCp hdfs://xxx/source hdfs://xxx/target 
-- 得到的结果为：启动多个task/executor，将hdfs://xxx/source目录复制到hdfs://xxx/target，得到 hdfs://xxx/target/source 
-  - 需要支持source下存在多级子目录 
-  - 需支持-i Ignore failures 参数 
-  - 需支持-m max concurrence参数，控制同时copy的最大并发task数
-
-### 让我想想
-1. RDD 为文件列表
-2. mapPartitions 实现分布式
-### 代码
-```java
+/**
+ * @author: reiserx
+ * Date:2021/8/23
+ * Des: Distcp 的 spark 实现
+ */
 public class Distcp {
     public static void main(String[] args) throws IOException, ParseException {
 
@@ -236,7 +144,3 @@ public class Distcp {
         }
     }
 }
-```
-
-### 运行结果
-![运行结果](../resource/spark02.png)
