@@ -21,9 +21,7 @@
     
 ![API](../resource/hbase03.png)
 
-
-            
-        
+    
 
 ### 代码
 ```java
