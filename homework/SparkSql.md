@@ -40,7 +40,7 @@ case class ShowVersionCommand() extends LeafRunnableCommand{
 build/sbt clean package -Phive -Phive-thriftserver 
 ```
 **5.启动**
-> 启动时注意 `SPARK_HOME`,必须配制成自己打包后的地址
+> 启动时注意 `SPARK_HOME`,必须配置成自己打包后的 spark 地址
 ```shell
 export SPARK_HOME=/Users/reiserx/code/source/spark
 export PATH=$SPARK_HOME/bin:$PATH
