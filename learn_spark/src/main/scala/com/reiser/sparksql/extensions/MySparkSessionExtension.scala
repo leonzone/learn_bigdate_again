@@ -1,4 +1,4 @@
-package sparkcore.extensions
+package com.reiser.sparksql.extensions
 
 import org.apache.spark.sql.SparkSessionExtensions
 
@@ -6,7 +6,7 @@ class MySparkSessionExtension extends (SparkSessionExtensions => Unit) { overrid
 
   extensions.injectOptimizerRule { session =>
 
-    new MyPushDown(session)
+    new MultiplyOptimizationRule()
 
   } }
 
