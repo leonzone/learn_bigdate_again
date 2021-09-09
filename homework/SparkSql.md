@@ -35,14 +35,12 @@ case class ShowVersionCommand() extends LeafRunnableCommand{
 }
 ```
 
-```java
-```
 **4.打包**
 ```shell
 build/sbt clean package -Phive -Phive-thriftserver 
 ```
 **5.启动**
-> 启动时注意 `SPARK_HOME`,无比配制成自己打包后的地址
+> 启动时注意 `SPARK_HOME`,必须配制成自己打包后的地址
 ```shell
 export SPARK_HOME=/Users/reiserx/code/source/spark
 export PATH=$SPARK_HOME/bin:$PATH
@@ -145,9 +143,18 @@ class MultiplyOptimizationRule extends Rule[LogicalPlan] {
 
 
 #### 3.运行
-- 服务器启动： `spark-sql --jars original-learn_spark-1.0-SNAPSHOT.jar --conf spark.sql.extensions=com.reiser.sparksql.extensions.MySparkSessionExtension`
-- sql 执行,以方便查看优化过程，需 spark 3.x ：`set spark.sql.planChangeLog.level=WARN;`
-- 运行 sql：`select customerId, amountPaid * 1 from sales;`
+1.服务器启动
+```shell
+spark-sql --jars original-learn_spark-1.0-SNAPSHOT.jar --conf spark.sql.extensions=com.reiser.sparksql.extensions.MySparkSessionExtension
+```
+2.sql 执行,以方便查看优化过程，需 spark 3.x
+```sql
+set spark.sql.planChangeLog.level=WARN;
+```
+3.运行 sql
+```sql
+select customerId, amountPaid * 1 from sales;
+```
 
 ### 运行结果
 ![运行结果](../resource/spark04.png)
