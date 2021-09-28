@@ -13,6 +13,8 @@
         <module>learn_hbase</module>
         <module>learn_hive</module>
         <module>learn_spark</module>
+        <module>learn_presto</module>
+        <module>learn_presto</module>
     </modules>
 
     <properties>
