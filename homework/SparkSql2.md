@@ -50,6 +50,89 @@ SqlBase.g4:
 (INTO fileNum=INTEGER_VALUE identifier)? #compactTable
 ```
 
+### 代码
+
+**1.在SqlBase.g4中添加**
+
+statement 添加 
+```antlrv4
+    | COMPACT TABLE target=tableIdentifier partitionSpec?
+    (INTO fileNum=INTEGER_VALUE FILES)?                           #compactTable
+```
+
+ansiNonReserved 添加
+```antlrv4
+    | FILES
+```
+
+nonReserved 添加
+```antlrv4
+    | FILES
+```
+
+keywords list 添加
+```antlrv4
+FILES: 'FILES';
+```
+
+**2.运行 Maven -> Spark Project Catalyst -> antlr4 -> antlr4:antlr4**
+
+**3.SparkSqlParser.scala 添加代码**
+```scala
+  override def visitCompactTable(ctx: CompactTableContext): LogicalPlan = withOrigin(ctx) {
+    val table: TableIdentifier = visitTableIdentifier(ctx.tableIdentifier())
+    val fileNum: Option[Int] = ctx.INTEGER_VALUE().getText.toInt
+    CompactTableCommand(table, fileNum)
+  }
+```
+
+**4.添加文件 CompactTableCommand**
+```scala
+case class CompactTableCommand(table: TableIdentifier,
+                               fileNum: Option[Int]) extends LeafRunnableCommand {
+
+  override def output: Seq[Attribute] = Seq(AttributeReference("no_return", StringType, false)())
+
+  override def run(spark: SparkSession): Seq[Row] = {
+
+    val dataDF: DataFrame = spark.table(table)
+    val num: Int = fileNum match {
+      case Some(i) => i
+      case _ =>
+        (spark
+          .sessionState
+          .executePlan(dataDF.queryExecution.logical)
+          .optimizedPlan
+          .stats.sizeInBytes / (1024L * 1024L * 128L)
+          ).toInt
+    }
+    log.warn(s"fileNum is $num")
+    val tmpTableName = table.identifier+"_tmp"
+    dataDF.write.mode(SaveMode.Overwrite).saveAsTable(tmpTableName)
+    spark.table(tmpTableName).repartition(num).write.mode(SaveMode.Overwrite).saveAsTable(table.identifier)
+    spark.sql(s"drop table if exists $tmpTableName")
+    log.warn("Compacte Table Completed.")
+    Seq()
+  }
+
+}
+```
+
+**5.编译 spark**
+```shell
+build/sbt clean package -Phive -Phive-thriftserver -DskipTests 
+```
+
+**6.启动 spark**
+```shell
+export SPARK_HOME=/xxx/source/spark
+export PATH=$SPARK_HOME/bin:$PATH
+
+bin/spark-sql
+
+```
+
+
 ## 作业三
 
 ### 题目
