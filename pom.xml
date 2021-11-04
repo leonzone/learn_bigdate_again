@@ -17,6 +17,8 @@
         <module>learn_presto</module>
         <module>learn_flink</module>
         <module>learn_kafka</module>
+        <module>learn_scala</module>
+        <module>learn_java</module>
     </modules>
 
     <properties>
