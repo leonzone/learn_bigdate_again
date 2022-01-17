@@ -76,6 +76,9 @@ object DFDemo {
 
     df.select("age").where("name is not null and age > 10").show()
 
+    df.createOrReplaceGlobalTempView("tb_test")
+
+    spark.sql("select age from tb_test").show()
 
     df.write.mode(SaveMode.Overwrite).parquet(path_parquet)
 

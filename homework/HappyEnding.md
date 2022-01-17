@@ -38,12 +38,14 @@ wget https://repo1.maven.org/maven2/org/apache/spark/spark-sql_2.12/3.1.1/spark-
 **5. 执行 SQL**
 
 ```shell
+nohup
 ./spark-3.1.1-bin-hadoop2.7/bin/spark-submit \
 --conf spark.sql.planChangeLog.level=WARN \
 --class org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark \
 --jars spark-core_2.12-3.1.1-tests.jar,spark-catalyst_2.12-3.1.1-tests.jar \
 spark-sql_2.12-3.1.1-tests.jar \
 --data-location tpcds-data-1g --query-filter "q73"\
+> running.log 2>&1 &
 ```
 
 **q73.sql**

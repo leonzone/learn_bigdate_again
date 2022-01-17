@@ -9,9 +9,9 @@ class MySparkSessionExtension extends (SparkSessionExtensions => Unit) { overrid
     new MultiplyOptimizationRule()
 
   }
-  extensions.injectPlannerStrategy { session =>
-
-    new RepartitionForInsertion()}
+//  extensions.injectPlannerStrategy { session =>
+//
+//    new RepartitionForInsertion()}
 
 }
 
