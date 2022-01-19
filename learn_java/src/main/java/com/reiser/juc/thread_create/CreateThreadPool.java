@@ -1,4 +1,4 @@
-package com.reiser.juc;
+package com.reiser.juc.thread_create;
 
 /**
  * @author: reiserx

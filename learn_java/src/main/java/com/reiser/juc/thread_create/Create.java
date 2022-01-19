@@ -1,4 +1,4 @@
-package com.reiser.juc;
+package com.reiser.juc.thread_create;
 
 import java.util.concurrent.*;
 
@@ -21,6 +21,8 @@ public class Create {
         testExecutor();
         // Callable 和 Future
         testCallable();
+        //守护线程
+        testDaemonThread();
     }
 
     private static void testCallable() {
@@ -116,6 +118,25 @@ public class Create {
             }
         };
 
+        thread.start();
+    }
+
+    private static void testDaemonThread() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                System.out.println("new thread is start!");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(" thread still running!");
+            }
+        };
+        // 其他非守护线程结束，守护线程必须同时结束
+        thread.setDaemon(true);
         thread.start();
     }
 }
