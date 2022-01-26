@@ -34,7 +34,6 @@ public class NumberCountByCyclicBarrier {
 
         ExecutorService executor = Executors.newCachedThreadPool();
 
-//        executor.submit()
         for (int i = 0; i < num; i++) {
             start = i * 100 + 1;
             end = start + 99;
@@ -43,7 +42,7 @@ public class NumberCountByCyclicBarrier {
             list.add(task);
         }
 
-        executor.shutdown();
+//        executor.shutdown();
         System.out.println("主程序结束");
 
 

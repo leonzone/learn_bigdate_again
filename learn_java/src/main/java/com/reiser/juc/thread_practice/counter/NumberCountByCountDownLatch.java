@@ -30,7 +30,8 @@ public class NumberCountByCountDownLatch {
             Future<Integer> futureTask = threadPool.submit(task);
             list.add(futureTask);
         }
-
+        System.out.println("各任务开始");
+        // 等待到 CountDownLatch num减为0
         latch.await();
         int result = 0;
 

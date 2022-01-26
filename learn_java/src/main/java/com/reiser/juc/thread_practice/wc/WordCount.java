@@ -41,13 +41,15 @@ public class WordCount {
                     Map<String, Integer> resultMap = new HashMap<>();
                     String line = null;
                     // Step2. 分割，bufferedReader readLine读取每一行，并每个线程通过 Callable 返回统计结果
+                    // readLine 只能被读取一次，并且是线程安全的
                     while ((line = bufferedReader.readLine()) != null) {
+                        // Step3.计算，使用 split 分割单词
                         String[] words = line.split(" ");
                         for (String word : words) {
                             resultMap.put(word, resultMap.getOrDefault(word, 0) + 1);
                         }
                     }
-                    // Step3.计算，使用 split 分割单词
+
                     return resultMap;
                 }
             });
